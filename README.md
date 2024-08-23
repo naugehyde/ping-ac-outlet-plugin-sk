@@ -21,10 +21,10 @@ If your boat is internetworked and Internet accessible and you're running DC loa
 ## Installation
 From a command prompt:<br>
 <br>
-  cd ~/.signalk/node_modules<br>
+<pre>  cd ~/.signalk/node_modules<br>
   git clone https://github.com/naugehyde/ping_ac_outlet_plugin_sk<br>
   cd ping_ac_outlet_plugin_sk<br>
-  npm i<br>
+  npm i<br></pre>
 
 Then restart SK. Plugin should appear in your server plugins list.<br>
 
