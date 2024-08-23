@@ -34,7 +34,7 @@ Configuration is largely self-explanatory. Start by opening the Signalk->Server 
 
 If you want to edit the body or subject text of the alert or restored email outside of the Signalk plugin config screen, edit \<signalk home\>/plugin_config_data/ping_ac_outlet_plugin_sk.json in a JSON editor or in any text editor just be sure to get your JSON syntax correct or the plugin won't load at SK startup.<br>
 
-If you're using smtp.gmail.com for your mail sender, you'll need to create an app specific plaform for **nodemailer**, the nodejs mail sending client. See: https://support.google.com/accounts/answer/185833?hl=en<br>
+If you're using smtp.gmail.com (or a similar secure smtp service) for your mail sender, you'll need to create an app specific plaform for **nodemailer**, the nodejs mail sending client. See: https://support.google.com/accounts/answer/185833?hl=en<br>
 
 ## To Do
 
