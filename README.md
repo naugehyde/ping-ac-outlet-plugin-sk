@@ -41,3 +41,7 @@ If you're using smtp.gmail.com (or a similar secure smtp service) for your mail 
 1) Further testing and documenting<br>
 2) Publish to Signalk app store<br>
 3) Investigate and implement a Signalk notification architecture for the plugin.<br>
+
+## Off-Label Use
+
+In theory, this plug-in can be used to monitor the presence of any IP address on or off your network. Can't guess what this applications might look like but have at it, you rascal.<br>
