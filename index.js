@@ -1,7 +1,7 @@
 const nodemailer=require('nodemailer')
 const net = require('node:net');
 const util = require("util");
-  
+const regex = /\$\{(.*?)\}/g  
 
 module.exports = (app) => {
   var intervalID
@@ -10,11 +10,13 @@ module.exports = (app) => {
 // async..await is not allowed in global scope, must use a wrapper
 async function sendAlertEmail(transporter, settings) {
   // send mail with defined transport object
-  const body = `AC Power plug not responding on ${app.getSelfPath('name')}. Shore power appears to be off.`
+  const body = eval("\`"+settings.alert_text.replace(regex,"${app.getSelfPath('$1')}")+"\`")
+  const subject = eval("\`"+settings.alert_text.replace(regex,"${app.getSelfPath('$1')}")+"\`")
+
   const info = await transporter.sendMail({
     from: settings.smtp_user, // sender address
     to: settings.recipients, // list of receivers
-    subject: `ALERT from ${app.getSelfPath('name')}: Shore Power appears to be off`, // Subject line
+    subject: subject,
     text: body, // plain text body
     html: "<b>"+body+"</b>", // html body
   });
@@ -23,37 +25,42 @@ async function sendAlertEmail(transporter, settings) {
 // async..await is not allowed in global scope, must use a wrapper
 async function sendRestoredEmail(transporter, settings) {
   // send mail with defined transport object
-  const body = `AC Power restored on ${app.getSelfPath('name')}`
+
+  const body = eval("\`"+settings.restored_text.replace(regex,"${app.getSelfPath('$1')}")+"\`")
+  const subject = eval("\`"+settings.restored_text.replace(regex,"${app.getSelfPath('$1')}")+"\`")
+
   const info = await transporter.sendMail({
     from: settings.smtp_user, // sender address
     to: settings.recipients, // list of receivers
-    subject: `ALERT from ${app.getSelfPath('name')}: Shore power restored`, // Subject line
+    subject: subject, // Subject line
     text: body, // plain text body
     html: "<b>"+body+"</b>", // html body
   });
 
-  console.log("Message sent: %s", info.messageId);
 }
 
   function pingOutlet(host, path){
-  
-    try {
-      const socket = new net.Socket()
-      socket.connect(80,host).on("error", (err) => {
-        if (err.code=='ECONNREFUSED'){ //-111
-          updatePath(path,1)
-          return 1
-        } else  {
-          if (err.code=='EHOSTUNREACH') //-113
-            updatePath(path,0)
-            return 0
-        }
-      })
-    } catch (error) {
-      updatePath(path,-1)
-      app.debug(util.inspect(error))
+    const socket = new net.Socket()
+    let ret=-1
+    socket.connect(80,host)
+    .on("connect", ()=>{
+       socket.destroy()
+       updatePath(path,1)
+       return 1}
+      )
+    .on("error", (err) => {
+      if (err.code=='ECONNREFUSED') //-111
+        ret=1
+     else
+       if (err.code=='EHOSTUNREACH') //-113
+          ret=0
+      socket.destroy()
+      updatePath(path,ret)
+      return ret
+    })
 
-    }
+    //
+    
   }
 
 
@@ -79,7 +86,7 @@ async function sendRestoredEmail(transporter, settings) {
          const transporter = nodemailer.createTransport({
           host: settings.smtp_host,
           port: settings.smtp_port,
-          secure: true, // Use `true` for port 465, `false` for all other ports
+          secure: settings.smtp_port==465, // Use `true` for port 465, `false` for all other ports
           auth: {
             user: settings.smtp_user,
             pass: settings.smtp_password,
@@ -116,6 +123,11 @@ async function sendRestoredEmail(transporter, settings) {
                 title: 'Host name of AC Outlet host to ping (e.g. 192.168.2.50)',
                 default: "192.168.xxx.xxx"
           },
+          ac_outlet_port:{
+            type:'number',
+            title: 'Port of AC Outlet host',
+            default:80
+          },
           check_interval:{
             type:"number",
             title: "Interval between pings"
@@ -145,7 +157,28 @@ async function sendRestoredEmail(transporter, settings) {
           recipients: {
             type: 'string',
             title:'Recipient(s) of power off warning email'
-          }
+          },
+          alert_text:{
+            type: 'string',
+            title: 'Text to send when power is down use ${name} for boat name. (Will work for any SK path)',
+            default: 'Shore power appears to be off on ${name}.'
+          },
+          alert_subject:{
+            type: 'string',
+            title: 'Subject of email when power is down',
+            default: 'ALERT Shore power appears to be off on ${name}.'
+          },
+          restored_text:{
+            type: 'string',
+            title: 'Text to send when power is down use ${name} for boat name. (Will work for any SK path)',
+            default: 'Shore power has been restored on ${name}.'
+          },
+          restored_subject:{
+            type: 'string',
+            title: 'Subject of email when power is restored',
+            default: 'ALERT Shore power restored on ${name}.'
+          },
+
         }
       };
     return plugin;
