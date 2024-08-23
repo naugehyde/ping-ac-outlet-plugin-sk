@@ -44,4 +44,4 @@ If you're using smtp.gmail.com (or a similar secure smtp service) for your mail 
 
 ## Off-Label Use
 
-In theory, this plug-in can be used to monitor the presence of any IP address on or off your network. Can't guess what this applications might look like but have at it, you rascal.<br>
+In theory, this plug-in can be used to monitor the presence of any IP address on or off your network. Can't imagine what these applications might be, but have at it you rascal.<br>
