@@ -1,11 +1,11 @@
 const nodemailer=require('nodemailer')
 const net = require('node:net');
 const util = require("util");
+const { resolve } = require('node:path');
 const regex = /\$\{(.*?)\}/g  
 
 module.exports = (app) => {
   var intervalID
-  var state 
 
 // async..await is not allowed in global scope, must use a wrapper
 async function sendAlertEmail(transporter, settings) {
@@ -39,25 +39,24 @@ async function sendRestoredEmail(transporter, settings) {
 
 }
 
-  function pingOutlet(host, path){
+  async function pingOutlet(host){
     const socket = new net.Socket()
     let ret=-1
-    socket.connect(80,host)
-    .on("connect", ()=>{
-       socket.destroy()
-       updatePath(path,1)
-       return 1}
+    socket.connect(80, host)
+    .on("connect", () => {
+        socket.destroy();
+        return 1;
+      }
       )
-    .on("error", (err) => {
-      if (err.code=='ECONNREFUSED') //-111
-        ret=1
-     else
-       if (err.code=='EHOSTUNREACH') //-113
-          ret=0
-      socket.destroy()
-      updatePath(path,ret)
-      return ret
-    })
+      .on("error", (err) => {
+        if (err.code == 'ECONNREFUSED') //-111
+          return 1;
+
+        else if (err.code == 'EHOSTUNREACH') //-113
+          return 0;
+          socket.destroy();
+          return ret;
+      })
 
     //
     
@@ -82,6 +81,7 @@ async function sendRestoredEmail(transporter, settings) {
     const plugin = {
       id: 'ping-ac-outlet-plugin',
       name: 'Ping AC outlet',
+      state: -1,
       start: (settings, restartPlugin) => {
          const transporter = nodemailer.createTransport({
           host: settings.smtp_host,
@@ -96,14 +96,34 @@ async function sendRestoredEmail(transporter, settings) {
         //sendAlertEmail( transporter, settings)
         //sendRestoredEmail( transporter, settings)
         createPath(settings.ac_state_path, "number")
-        updatePath(settings.ac_state_path, -1)
+        updatePath(settings.ac_state_path, plugin.state)
         intervalID = setInterval( () =>{
-          const ping = pingOutlet(settings.ac_outlet_host,settings.ac_state_path)
-          if (ping==0 && state!=0)
-            sendAlertEmail( transporter, settings)
-          else if (ping==1 && state==0)
-            sendRestoredEmail(transporter, settings)
-          state=ping
+          
+          const socket = new net.Socket()
+          socket.connect(80, settings.ac_outlet_host).on("connect", () => {
+              if (plugin.state==0)
+                sendRestoredEmail(transporter, settings)
+              plugin.state=1
+              updatePath(settings.ac_state_path, 1);
+              socket.destroy();
+          })
+          .on("error", (err) => {
+            if (err.code == 'ECONNREFUSED') { //-111 
+                updatePath(settings.ac_state_path, 1);
+                if (plugin.state==0) 
+                  sendRestoredEmail(transporter, settings)
+                plugin.state=1
+              }
+              else if (err.code == 'EHOSTUNREACH') { //-113
+                if (plugin.state==1) 
+                  sendAlertEmail(transporter, settings)
+                updatePath(settings.ac_state_path, 0);
+                plugin.state=0
+              }
+              socket.destroy();
+            })
+      
+   
         }, settings.check_interval*1000) 
       },
       stop: () => {
