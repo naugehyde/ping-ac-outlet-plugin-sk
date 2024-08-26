@@ -22,8 +22,8 @@ If your boat is internetworked and Internet accessible and you're running DC loa
 From a command prompt:<br>
 <br>
 <pre>  cd ~/.signalk/node_modules<br>
-  git clone https://github.com/naugehyde/ping_ac_outlet_plugin_sk<br>
-  cd ping_ac_outlet_plugin_sk<br>
+  git clone https://github.com/naugehyde/ping-ac-outlet-plugin-sk<br>
+  cd ping-ac-outlet-plugin-sk<br>
   npm i<br></pre>
 
 Then restart SK. Plugin should appear in your server plugins list.<br>
