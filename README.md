@@ -39,7 +39,7 @@ From a command prompt:<br>
 
 Finally, restart SK. Plugin should appear in your server plugins list.<br>
 
-> [!Tip] "~/.signalk" is the default signalk home on Linux. If you're 
+> NOTE "~/.signalk" is the default signalk home on Linux. If you're 
 > getting permissions errors executing npm link, try executing "npm link" under sudo.
 
 ### Windows
