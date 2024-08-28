@@ -1,5 +1,5 @@
 {
-  "name": "ping_ac_outlet_plugin",
+  "name": "ping-ac-outlet-plugin-sk",
   "version": "1.0.0",
   "description": "Ping TP-Link plug to see if boat is on shore power or not",
   "main": "index.js",
