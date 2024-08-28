@@ -20,9 +20,9 @@ async function sendAlertEmail(transporter, settings) {
     text: body, // plain text body
     html: "<b>"+body+"</b>", // html body
   });
+  return info
 }
 
-// async..await is not allowed in global scope, must use a wrapper
 async function sendRestoredEmail(transporter, settings) {
   // send mail with defined transport object
 
@@ -36,40 +36,16 @@ async function sendRestoredEmail(transporter, settings) {
     text: body, // plain text body
     html: "<b>"+body+"</b>", // html body
   });
-
-}
-
-  async function pingOutlet(host){
-    const socket = new net.Socket()
-    let ret=-1
-    socket.connect(80, host)
-    .on("connect", () => {
-        socket.destroy();
-        return 1;
-      }
-      )
-      .on("error", (err) => {
-        if (err.code == 'ECONNREFUSED') //-111
-          return 1;
-
-        else if (err.code == 'EHOSTUNREACH') //-113
-          return 0;
-          socket.destroy();
-          return ret;
-      })
-
-    //
-    
+  return info
   }
 
-
-  function createPath(path, type){
+  function createPath(path, type, description=''){
 
     app.handleMessage(plugin.id, 
       {
        updates: [{ meta: [{path: path, 
                           value: { units: type, 
-                          description:'' }}]}]
+                          description:description }}]}]
       }
     );
 
@@ -93,28 +69,27 @@ async function sendRestoredEmail(transporter, settings) {
           },
         });
         app.debug("Starting PING AC Outlet: "+ settings.ac_state_path)
-        //sendAlertEmail( transporter, settings)
-        //sendRestoredEmail( transporter, settings)
+
         createPath(settings.ac_state_path, "number")
         updatePath(settings.ac_state_path, plugin.state)
         intervalID = setInterval( () =>{
           
           const socket = new net.Socket()
           socket.connect(80, settings.ac_outlet_host).on("connect", () => {
-              if (plugin.state==0)
+            updatePath(settings.ac_state_path, 1);
+            if (plugin.state==0)
                 sendRestoredEmail(transporter, settings)
               plugin.state=1
-              updatePath(settings.ac_state_path, 1);
               socket.destroy();
           })
           .on("error", (err) => {
-            if (err.code == 'ECONNREFUSED') { //-111 
+            if (err.code == 'ECONNREFUSED') { //-111 Refused but the IP address is still online so there's power
                 updatePath(settings.ac_state_path, 1);
                 if (plugin.state==0) 
                   sendRestoredEmail(transporter, settings)
                 plugin.state=1
               }
-              else if (err.code == 'EHOSTUNREACH') { //-113
+              else if (err.code == 'EHOSTUNREACH') { //-113 Very likely because there's no power to the outlet
                 if (plugin.state==1) 
                   sendAlertEmail(transporter, settings)
                 updatePath(settings.ac_state_path, 0);
