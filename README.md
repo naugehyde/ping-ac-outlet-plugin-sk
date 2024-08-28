@@ -1,4 +1,4 @@
-# Ping AC Outlet Plugin for Signalk (www.signalk.org)
+# Ping AC Outlet Plugin for [Signalk](www.signalk.org)
 
 ## What it is
 
