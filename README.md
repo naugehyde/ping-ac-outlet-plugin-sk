@@ -1,5 +1,5 @@
 # Ping AC Outlet Plugin for [Signalk](www.signalk.org)
-
+(branch = sk-notify)
 ## What it is
 
 This is a simple plugin for Signalk that with one piece of inexpensive hardware will monitor the AC status on your boat and send an alert via email if the AC appears to be down.<br>
