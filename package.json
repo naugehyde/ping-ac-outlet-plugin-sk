@@ -10,9 +10,6 @@
     "signalk-node-server-plugin",
     "signalk-category-utility"
   ],
-  "dependencies": {
-    "nodemailer": "^4.1.0"
-  },
   "author": "Andrew Gerngross",
   "license": "ISC"
 }
