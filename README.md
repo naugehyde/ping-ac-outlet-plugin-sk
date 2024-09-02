@@ -8,16 +8,16 @@ I say "appears" because the plugin relies on indirect information (the accessibi
 
 With a properly configured plugin and a properly configured Wifi-enabled AC outlet plug, the plugin is unlikely to produce false positives (AC shows off when it's on) and for the life of me I can't think of a situation (apart from sabotage) where it'd produce a false negative (AC shows on when it's off).
 
+The plugin raises an alert that can be responded by a Node-Red flow (or similar). If (as in my case) your boat has Internet access, the alert can then be emailed to you so you'll know when your boat has lost shore power.
+
 ## Who is it for
 
 Shore power outage can occur during severe weather and can drain your batteries if there's a DC load anywhere on your system. Mariners like myself keep our NMEA 2000 and Signalk systems running 24/7. At times, I'll run a heavy DC load like my boat's refrigerator when I'm ashore. <br>
-<br>
-If your boat is internetworked and Internet accessible and you're running DC loads that could drain your battery, this plugin is for you. <br>
+If you're running DC loads that could drain your battery, this plugin could save you time and money. <br>
 
 ## Prerequisites
 
 1) Signalk<br>
-2) Internet access with a router on a 12/24 volt system<br>
 3) A smart AC outlet plug like TP-Link KS-115. https://www.kasasmart.com/us/products/smart-plugs/kasa-smart-plug-slim-energy-monitoring-kp115. Note: any smart plug that's a client on your LAN with a known IP address should do. Let me know if there's one that doesn't work with this plugin.<br>
 
 ## Installation
