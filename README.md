@@ -12,7 +12,7 @@ The plugin raises an alert that can be responded by a Node-Red flow (or similar)
 
 ## Who is it for
 
-Shore power outage can occur during severe weather and can drain your batteries if there's a DC load anywhere on your system. Mariners like myself keep our NMEA 2000 and Signalk systems running 24/7. At times, I'll run a heavy DC load like my boat's refrigerator when I'm ashore. <br>
+Shore power outage can occur during severe weather and can drain your batteries if there's a DC load anywhere on your system. Mariners like myself keep our NMEA 2000 and Signalk systems running 24/7. At times, I'll run a heavy DC load like my boat's refrigerator when I'm ashore. <br><br>
 If you're running DC loads that could drain your battery, this plugin could save you time and money. <br>
 
 ## Prerequisites
