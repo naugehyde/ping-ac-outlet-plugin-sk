@@ -4,30 +4,7 @@ const utilities = require ('../utilities-sk/utilities.js')
 const { resolve } = require('node:path');
 module.exports = (app) => {
   var intervalID
-
-  function processText(text){
-    return eval("\`"+text.replace(/\$\{(.*?)\}/g ,"${app.getSelfPath('$1')}")+"\`")            
-  }
-  async function sendRestoredEmail(settings){
-    const response = await utilities.sendmail(
-      { 
-        to: settings.recipients, 
-        subject: processText(settings.restored_subject),
-        text: processText(settings.restored_text)
-      }
-      )
-      app.debug(response)
-  }
   
-  function sendAlertEmail(settings){
-    utilities.sendmail(
-    {  
-      to: settings.recipients, 
-      subject: processText(settings.alert_subject),
-      text: processText(settings.alert_text)
-    })
-  }
-
   function createPath(path, type, description=''){
 
     app.handleMessage(plugin.id, 
@@ -65,23 +42,6 @@ module.exports = (app) => {
 
         createPath(settings.ac_state_path, "number")
         updatePath(settings.ac_state_path, plugin.state)
-        app.registerDeltaInputHandler((delta, next) => {
-          if (delta.updates) {
-            delta.updates.forEach(update => {
-              if (update.values) {
-                update.values.forEach(pathValue => {
-                  if(pathValue.path.startsWith("notifications."+settings.ac_state_path)) {
-                    if (pathValue.value.state=='alert')
-                      sendAlertEmail(settings)
-                    else if (pathValue.value.state='normal')
-                      sendRestoredEmail(settings)
-                  }
-                })
-              }         
-            })
-          }
-          next(delta)
-        });
 
         intervalID = setInterval( () =>{
 
@@ -95,6 +55,7 @@ module.exports = (app) => {
           })
           .on("error", (err) => {
             if (err.code == 'ECONNREFUSED') { //-111 Refused but the IP address is still online so there's power
+                            
                 updatePath(settings.ac_state_path, 1);
                 if (plugin.state==0) 
                   plugin.clearAlarm(settings);
@@ -116,7 +77,6 @@ module.exports = (app) => {
         if (intervalID!=null){
           clearInterval(intervalID)
         }
-        // shutdown code goes here.
       },
     };
     plugin.schema = {
@@ -143,31 +103,6 @@ module.exports = (app) => {
             title:'Signalk path that reflects state of AC outlets',
             default: 'electrical.ac.state'
           },
-          recipients: {
-            type: 'string',
-            title:'Recipient(s) of power off warning email'
-          },
-          alert_text:{
-            type: 'string',
-            title: 'Text to send when power is down. Use ${name} for boat name. (Will work for any SK path)',
-            default: 'Shore power appears to be off on ${name}.'
-          },
-          alert_subject:{
-            type: 'string',
-            title: 'Subject of email when power is down',
-            default: 'ALERT Shore power appears to be off on ${name}.'
-          },
-          restored_text:{
-            type: 'string',
-            title: 'Text to send when power is down. Use ${name} for boat name. (Will work for any SK path)',
-            default: 'Shore power has been restored on ${name}.'
-          },
-          restored_subject:{
-            type: 'string',
-            title: 'Subject of email when power is restored',
-            default: 'ALERT Shore power restored on ${name}.'
-          },
-
         }
       };
 //    plugin.getOpenApi = () => openapi;
